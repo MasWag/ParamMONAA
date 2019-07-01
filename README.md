@@ -1,6 +1,9 @@
 Param MONAA --- A Tool for Parametric Timed Patten Matching with Automata-Based Acceleration
 ============================================================================================
 
+[![wercker status](https://app.wercker.com/status/062aedaff5135bc38b9fd7730d43aed6/s/master "wercker status")](https://app.wercker.com/project/byKey/062aedaff5135bc38b9fd7730d43aed6)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
+
 This is the source code repository for Param MONAA --- A Tool for Parametric Timed Patten Matching with Automata-Based Acceleration.
 
 The demo on Google Colab is [HERE](https://colab.research.google.com/drive/1JQtKtMWBqCn1xoD9iE_k7rlGHSrCCGwn)!!
