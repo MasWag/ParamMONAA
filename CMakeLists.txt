@@ -1,9 +1,11 @@
+cmake_minimum_required(VERSION 3.8)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-deprecated-register")
 
-project(MONAA CXX)
+project(ParamMONAA LANGUAGES CXX VERSION 0.0.0)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
-cmake_minimum_required(VERSION 3.1)
+configure_file(monaa/config.hh.in ${CMAKE_CURRENT_BINARY_DIR}/config.hh)
+
 set(CMAKE_CXX_FLAGS "-Wall -std=c++14 -march=native")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -DDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE "-flto -O3 -DRELEASE")
@@ -35,7 +37,6 @@ FLEX_TARGET(tre_lexer
   ${CMAKE_CURRENT_BINARY_DIR}/tre/tre_lexer.yy.cc)
 ADD_FLEX_BISON_DEPENDENCY(tre_lexer tre_parser)
 
-
 BISON_TARGET(constraint_parser
   monaa/constraint_parser.yy
   ${CMAKE_CURRENT_BINARY_DIR}/constraint/constraint_parser.tab.cc)
@@ -44,23 +45,41 @@ FLEX_TARGET(constraint_lexer
   ${CMAKE_CURRENT_BINARY_DIR}/constraint/constraint_lexer.yy.cc)
 ADD_FLEX_BISON_DEPENDENCY(constraint_lexer constraint_parser)
 
-## Config for Main monaa
-add_executable(monaa
-  monaa/main.cc
-  libmonaa/intersection.cc
-  libmonaa/ta2za.cc
-  monaa/tre.cc
-  monaa/intermediate_tre.cc
-  ${FLEX_tre_lexer_OUTPUTS}
-  ${BISON_tre_parser_OUTPUTS})
+# ## Config for Main monaa
+# add_executable(monaa
+#   monaa/main.cc
+#   libmonaa/intersection.cc
+#   libmonaa/ta2za.cc
+#   monaa/tre.cc
+#   monaa/intermediate_tre.cc
+#   ${FLEX_tre_lexer_OUTPUTS}
+#   ${BISON_tre_parser_OUTPUTS})
 
-target_link_libraries(monaa
-#  profiler
-  ${PPL_PPL_LIBRARY}
-  ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  ${Boost_GRAPH_LIBRARY})
+# target_link_libraries(monaa
+# #  profiler
+#   ${PPL_PPL_LIBRARY}
+#   ${Boost_PROGRAM_OPTIONS_LIBRARY}
+#   ${Boost_GRAPH_LIBRARY})
 
-add_executable(pmonaa_no_skipping
+# add_executable(pmonaa_no_skipping
+#   monaa/pmain.cc
+#   libmonaa/parametric_intersection.cc
+#   libmonaa/pta2pza.cc
+#   ${FLEX_tre_lexer_OUTPUTS}
+#   ${FLEX_constraint_lexer_OUTPUTS}
+#   ${BISON_constraint_parser_OUTPUTS})
+
+# target_link_libraries(pmonaa_no_skipping
+# #  profiler
+#   ${PPL_PPL_LIBRARY}
+#   ${GMP_LIBRARY}
+#   ${Boost_PROGRAM_OPTIONS_LIBRARY}
+#   ${Boost_GRAPH_LIBRARY})
+
+# set_target_properties(pmonaa_no_skipping
+#   PROPERTIES COMPILE_FLAGS "-DDISABLE_SKIPPING")
+
+add_executable(pmonaa
   monaa/pmain.cc
   libmonaa/parametric_intersection.cc
   libmonaa/pta2pza.cc
@@ -68,58 +87,62 @@ add_executable(pmonaa_no_skipping
   ${FLEX_constraint_lexer_OUTPUTS}
   ${BISON_constraint_parser_OUTPUTS})
 
-target_link_libraries(pmonaa_no_skipping
+target_link_libraries(pmonaa
 #  profiler
   ${PPL_PPL_LIBRARY}
   ${GMP_LIBRARY}
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   ${Boost_GRAPH_LIBRARY})
 
-set_target_properties(pmonaa_no_skipping
-  PROPERTIES COMPILE_FLAGS "-DDISABLE_SKIPPING")
-
-add_executable(pmonaa_skipping
-  monaa/pmain.cc
-  libmonaa/parametric_intersection.cc
-  libmonaa/pta2pza.cc
-  ${FLEX_tre_lexer_OUTPUTS}
-  ${FLEX_constraint_lexer_OUTPUTS}
-  ${BISON_constraint_parser_OUTPUTS})
-
-target_link_libraries(pmonaa_skipping
-#  profiler
-  ${PPL_PPL_LIBRARY}
-  ${GMP_LIBRARY}
-  ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  ${Boost_GRAPH_LIBRARY})
-
-set_target_properties(pmonaa_skipping
-  PROPERTIES COMPILE_FLAGS "-DENABLE_SKIPPING")
-
-add_executable(pmonaa_parametric_skipping
-  monaa/pmain.cc
-  libmonaa/parametric_intersection.cc
-  libmonaa/pta2pza.cc
-  ${FLEX_tre_lexer_OUTPUTS}
-  ${FLEX_constraint_lexer_OUTPUTS}
-  ${BISON_constraint_parser_OUTPUTS})
-
-target_link_libraries(pmonaa_parametric_skipping
-#  profiler
-  ${PPL_PPL_LIBRARY}
-  ${GMP_LIBRARY}
-  ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  ${Boost_GRAPH_LIBRARY})
-
-set_target_properties(pmonaa_parametric_skipping
-  PROPERTIES COMPILE_FLAGS "-DENABLE_PARAMETRIC_SKIPPING")
-
-target_include_directories(monaa
+target_include_directories(pmonaa
   PRIVATE
   .
   ${CMAKE_CURRENT_BINARY_DIR})
-set_property(TARGET monaa
+set_property(TARGET pmonaa
   PROPERTY CXX_STANDARD 14)
+
+# add_executable(pmonaa_skipping
+#   monaa/pmain.cc
+#   libmonaa/parametric_intersection.cc
+#   libmonaa/pta2pza.cc
+#   ${FLEX_tre_lexer_OUTPUTS}
+#   ${FLEX_constraint_lexer_OUTPUTS}
+#   ${BISON_constraint_parser_OUTPUTS})
+
+# target_link_libraries(pmonaa_skipping
+# #  profiler
+#   ${PPL_PPL_LIBRARY}
+#   ${GMP_LIBRARY}
+#   ${Boost_PROGRAM_OPTIONS_LIBRARY}
+#   ${Boost_GRAPH_LIBRARY})
+
+# set_target_properties(pmonaa_skipping
+#   PROPERTIES COMPILE_FLAGS "-DENABLE_SKIPPING")
+
+# add_executable(pmonaa_parametric_skipping
+#   monaa/pmain.cc
+#   libmonaa/parametric_intersection.cc
+#   libmonaa/pta2pza.cc
+#   ${FLEX_tre_lexer_OUTPUTS}
+#   ${FLEX_constraint_lexer_OUTPUTS}
+#   ${BISON_constraint_parser_OUTPUTS})
+
+# target_link_libraries(pmonaa_parametric_skipping
+# #  profiler
+#   ${PPL_PPL_LIBRARY}
+#   ${GMP_LIBRARY}
+#   ${Boost_PROGRAM_OPTIONS_LIBRARY}
+#   ${Boost_GRAPH_LIBRARY})
+
+# set_target_properties(pmonaa_parametric_skipping
+#   PROPERTIES COMPILE_FLAGS "-DENABLE_PARAMETRIC_SKIPPING")
+
+# target_include_directories(monaa
+#   PRIVATE
+#   .
+#   ${CMAKE_CURRENT_BINARY_DIR})
+# set_property(TARGET monaa
+#   PROPERTY CXX_STANDARD 14)
 
 ## Config for libmonaa
 add_library(libmonaa STATIC
@@ -200,4 +223,4 @@ if(BUILD_DOCUMENTATION)
 endif()
 
 # INSTALL
-install(TARGETS monaa DESTINATION bin)
+install(TARGETS pmonaa DESTINATION bin)

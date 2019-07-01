@@ -58,6 +58,12 @@
 #undef ENABLE_KMP
 #endif
 
+namespace parametric_monaa {
+  bool enable_quick_search = false;
+  bool enable_parametric_kmp = false;
+  bool enable_kmp = false;
+}
+
 namespace {
   /*
     @brief Internal state of the BFS in the parametric timed pattern matching
@@ -128,27 +134,24 @@ void parametricMonaa(WordContainer<InputContainer> word,
 
   // Sunday's Skip value
   // Char -> Skip Value
-#ifdef ENABLE_QUICK_SEARCH
+  int m;
   const PSundaySkipValue delta = PSundaySkipValue(Ap);
-  const int m = delta.getM();
   std::unordered_set<Alphabet> endChars;
-  delta.getEndChars(endChars);
-#else
-  const int m = 1;
-#endif
+  if (parametric_monaa::enable_quick_search) {
+    m = delta.getM();
+    delta.getEndChars(endChars);
+  } else {
+    m = 1;
+  }
 
   // KMP-Type Skip value
   // A.State -> SkipValue
-#ifdef ENABLE_PARAMETRIC_KMP
-  const ParametricKMPSkipValue beta(Ap, m);
-#elif defined ENABLE_KMP
-  const PKMPSkipValue beta(Ap, m);
-#else
-  std::unordered_map<PTAState*, std::size_t> beta;
+  const ParametricKMPSkipValue betaParamKMP(Ap, m);
+  const PKMPSkipValue betaKMP(Ap, m);
+  std::unordered_map<PTAState*, std::size_t> betaNoSkip;
   for (std::shared_ptr<PTAState> s: A.states) {
-    beta[s.get()] = 1;
+    betaNoSkip[s.get()] = 1;
   }
-#endif
 
   // main computation
   // We assume there is no epsilon transitions.
@@ -196,36 +199,9 @@ void parametricMonaa(WordContainer<InputContainer> word,
   ans.clear();
   std::size_t j;
   while (word.fetch(i + m - 1)) {
-#ifdef ENABLE_QUICK_SEARCH
-    bool tooLarge = false;
-    // Sunday Shift
-#if 0
-    if (m == 1 && init[word[i].first].size() > 0) {
-      // When there can be immidiate accepting
-      // @todo This optimization is not yet
-      ans.reserve(ans.size() + init[word[i].first].size());
-      if (i <= 0) {
-        for (auto zone: init[word[i].first]) {
-          Zone ansZone;
-          zone.value.col(0).fill({word[i].second, false});
-          if (zone.isSatisfiableCanonized()) {
-            zone.toAns(ansZone);
-            ans.push_back(std::move(ansZone));
-          }
-        }
-      } else {
-        for (auto zone: init[word[i].first]) {
-          Zone ansZone;
-          zone.value.col(0).fill({word[i].second, false});
-          zone.value.row(0).fill({-word[i-1].second, true});
-          if (zone.isSatisfiableCanonized()) {
-            zone.toAns(ansZone);
-            ans.push_back(std::move(ansZone));
-          }
-        }
-      }
-    } else
-#endif
+    if (parametric_monaa::enable_quick_search) {
+      bool tooLarge = false;
+      // Sunday Shift
       if (m > 1 && word.fetch(i + m - 1)) {
         while (endChars.find(word[i + m - 1].first) == endChars.end() ) {
           if (!word.fetch(i + m)) {
@@ -242,8 +218,8 @@ void parametricMonaa(WordContainer<InputContainer> word,
         }
       }
 
-    if (tooLarge) break;
-#endif
+      if (tooLarge) break;
+    }
 
     // KMP like Matching
     CStates.clear ();
@@ -428,15 +404,14 @@ void parametricMonaa(WordContainer<InputContainer> word,
     }
     // KMP like skip value
     std::size_t greatestN = 1;
-#ifdef ENABLE_PARAMETRIC_KMP
+    if (parametric_monaa::enable_parametric_kmp) {
     for (const InternalState<typename InputContainer::TimeStamp>& istate: LastStates) {
-      greatestN = std::max(beta.at(ptrConv[istate.s], istate.constraint), greatestN);
+      greatestN = std::max(betaParamKMP.at(ptrConv[istate.s], istate.constraint), greatestN);
     }
-#elif defined ENABLE_KMP
+    } else if (parametric_monaa::enable_kmp)
     for (const InternalState<typename InputContainer::TimeStamp>& istate: LastStates) {
-      greatestN = std::max(beta[ptrConv[istate.s].get()], greatestN);
+      greatestN = std::max(betaKMP[ptrConv[istate.s].get()], greatestN);
     }
-#endif
     // increment i
     i += greatestN;
     word.setFront(i - 1);

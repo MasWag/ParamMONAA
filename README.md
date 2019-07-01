@@ -23,16 +23,15 @@ Usage
 **-a**, **--ascii** Ascii mode. (default) <br />
 **-b**, **--binary** Binary mode. <br />
 **-V**, **--version** Print the version <br />
-**-E**, **--event** Event mode (default) <br />
-**-S**, **--signal** Signal mode <br />
 **-i** *file*, **--input** *file* Read a timed word from *file*. <br />
+**-r**, **--rational** Use rational number of GMP (default). <br />
+**-F**, **--float** Use floating point number. <br />
 **-f** *file*, **--automaton** *file* Read a timed automaton from *file*. <br />
-**-e** *pattern*, **--expression** *pattern* Specify a *pattern* by a timed regular expression. <br />
 
 Example
 -------
     
-    ./build/pmonaa -s parametric -f ./example/pta.dot < ./example/timed_word.txt
+    ./build/pmonaa -s parametric -f ./examples/pta.dot < ./examples/timed_word.txt
 
 
 Installation

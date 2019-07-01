@@ -3,6 +3,7 @@
 
 #include "../libmonaa/parametric_monaa.hh"
 #include "parametric_timed_automaton_parser.hh"
+#include "config.hh"
 
 using namespace boost::program_options;
 
@@ -21,19 +22,21 @@ int main(int argc, char *argv[])
 
   // visible options
   options_description visible("description of options");
-//  std::string timedWordFileName;
+  std::string timedWordFileName;
   std::string timedAutomatonFileName;
+  std::string skipMode;
   bool isBinary = false;
   visible.add_options()
     ("help,h", "help")
     ("quiet,q", "quiet")
+    ("skip,s", value<std::string>(&skipMode)->default_value("parametric"), "Specify which skipping is used. It should be one of `parametric` (default), `non-parametric`, and `none`.")
     ("ascii,a", "ascii mode (default)")
     ("binary,b", "binary mode")
     ("version,V", "version")
+    ("input,i", value<std::string>(&timedWordFileName)->default_value("stdin"),"input timedWordFile of Timed Words")
     ("rational,r", "use rational number of GMP (default)")
     ("float,F", "use floating point number")
-  //    ("input,i", value<std::string>(&timedWordFileName)->default_value("stdin"),"input file of Timed Words")
-    ("automaton,f", value<std::string>(&timedAutomatonFileName)->default_value(""),"input file of Parametric Timed Automaton");
+    ("automaton,f", value<std::string>(&timedAutomatonFileName)->default_value(""),"input timedWordFile of Parametric Timed Automaton");
 
   command_line_parser parser(argc, argv);
   parser.options(visible);
@@ -48,7 +51,8 @@ int main(int argc, char *argv[])
     return 0;
   }
   if (vm.count("version")) {
-    std::cout << "MONAA (a MONitoring tool Acceralated by Automata) 0.0.0\n"
+    std::cout << "ParamMONAA (a PARAMetric MONitoring tool Acceralated by Automata) " << PROJECT_VER
+              << "\n"
               << visible << std::endl;
     return 0;
   }
@@ -61,6 +65,23 @@ int main(int argc, char *argv[])
     isBinary = false;
   }
 
+  if (skipMode == "parametric") {
+    parametric_monaa::enable_quick_search = true;
+    parametric_monaa::enable_parametric_kmp = true;
+    parametric_monaa::enable_kmp = false;
+  } else if (skipMode == "non-parametric") {
+    parametric_monaa::enable_quick_search = true;
+    parametric_monaa::enable_parametric_kmp = false;
+    parametric_monaa::enable_kmp = true;
+  } else if (skipMode == "none") {
+    parametric_monaa::enable_quick_search = false;
+    parametric_monaa::enable_parametric_kmp = false;
+    parametric_monaa::enable_kmp = false;
+  } else {
+    std::cerr << "Unknown skip type is specified: " << skipMode << "\n";
+    return 1;
+  }
+
   ParametricTimedAutomaton TA;
 
   // parse PTA
@@ -69,14 +90,20 @@ int main(int argc, char *argv[])
   parseBoostTA(taStream, BoostTA);
   convBoostTA(BoostTA, TA);
 
-  FILE* file = stdin;
+  FILE* timedWordFile;
+
+  if (timedWordFileName == "stdin") {
+    timedWordFile = stdin;
+  } else {
+    timedWordFile = fopen(timedWordFileName.c_str(), "r");
+  }
   AnsPolyhedronPrinter ans(vm.count("quiet"));
-  // online mode
+
   if(vm.count("float")) {
-    WordLazyDeque w(file, isBinary);
+    WordLazyDeque w(timedWordFile, isBinary);
     parametricMonaa(w, TA, ans);
   } else {
-    WordLazyDequeMPQ w(file, isBinary);
+    WordLazyDequeMPQ w(timedWordFile, isBinary);
     parametricMonaa(w, TA, ans);
   }
   return 0;
