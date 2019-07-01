@@ -1,9 +1,7 @@
-MONAA --- A Tool for Timed Patten Matching with Automata-Based Acceleration (A Variant for Parametric Timed Pattern Matching)
-=============================================================================================================================
+Param MONAA --- A Tool for Parametric Timed Patten Matching with Automata-Based Acceleration
+============================================================================================
 
-This is the source code repository for MONAA --- A Tool for Timed Patten Matching with Automata-Based Acceleration.
-
-This branch is for **Parametric Timed Pattern Matching**.
+This is the source code repository for Param MONAA --- A Tool for Parametric Timed Patten Matching with Automata-Based Acceleration.
 
 The demo on Google Colab is [HERE](https://colab.research.google.com/drive/1JQtKtMWBqCn1xoD9iE_k7rlGHSrCCGwn)!!
 
@@ -12,17 +10,13 @@ Usage
 
 ### Synopsis
 
-    monaa [OPTIONS] PATTERN [FILE]
-    monaa [OPTIONS] -e PATTERN [FILE]
-    monaa [OPTIONS] -f FILE [FILE]
-    pmonaa_no_skipping [OPTIONS] -f FILE
-    pmonaa_parametric_skipping [OPTIONS] -f FILE
-    pmonaa_skipping [OPTIONS] -f FILE
+    pmonaa [OPTIONS] -f FILE
 
 ### Options
 
 **-h**, **--help** Print a help message. <br />
 **-q**, **--quiet** Quiet mode. Causes any results to be suppressed. <br />
+**-s** *mode*, **--skip** *mode* Specify which skipping is used. It should be one of `parametric` (default), `non-parametric`, and `none`. <br />
 **-a**, **--ascii** Ascii mode. (default) <br />
 **-b**, **--binary** Binary mode. <br />
 **-V**, **--version** Print the version <br />
@@ -35,13 +29,13 @@ Usage
 Example
 -------
     
-    ./build/pmonaa_skipping -f ./example/pta.dot < ./example/timed_word.txt
+    ./build/pmonaa -s parametric -f ./example/pta.dot < ./example/timed_word.txt
 
 
 Installation
 ------------
 
-MONAA is tested on Arch Linux and Mac OSX 10.14.1
+Param MONAA is tested on Arch Linux and Mac OSX 10.14.1
 
 ### Requirements
 
@@ -51,7 +45,7 @@ MONAA is tested on Arch Linux and Mac OSX 10.14.1
 * CMake
 * Bison
 * Flex
-* PPL (for pmonaa)
+* PPL
 
 ### Instructions
 
@@ -61,10 +55,10 @@ mkdir build/tre build/constraint
 cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make && make install
 ```
 
-Syntax of Timed Automata
-------------------------
+Syntax of Parametric Timed Automata
+-----------------------------------
 
-You can use [DOT language](http://www.graphviz.org/content/dot-language) to represent a timed automaton. For the timing constraints and other information, you can use the following custom attributes.
+You can use [DOT language](http://www.graphviz.org/content/dot-language) to represent a parametric timed automaton. For the timing constraints and other information, you can use the following custom attributes.
 
 <table>
 <thead>
@@ -94,23 +88,8 @@ You can use [DOT language](http://www.graphviz.org/content/dot-language) to repr
 </tbody>
 </table>
 
-Syntax of Timed Regular Expressions
------------------------------------
-
-
-    expr : c (An event)
-         | ( expr ) (Grouping)
-         | expr + (Kleene Plus)
-         | expr * (Kleene Star)
-         | expr expr (Concatenation)
-         | expr | expr (Disjunction)
-         | expr & expr (Conjunction)
-         | expr % (s,t) (Time Restriction)
-
-
 References
 -------------
 
-* A Boyer-Moore Type Algorithm for Timed Pattern Matching. Masaki Waga, Takumi Akazaki, and Ichiro Hasuo
-* Efficient Online Timed Pattern Matching by Automata-Based Skipping. Masaki Waga, Ichiro Hasuo, and Kohei Suenaga
-* MONAA: a Tool for Timed Patten Matching with Automata-Based Acceleration. Masaki Waga, Ichiro Hasuo, and Kohei Suenaga
+* Offline Timed Pattern Matching under Uncertainty. Étienne André, Ichiro Hasuo, and Masaki Waga. ICECCS 2018: 10-20 [[arXiv version]](https://arxiv.org/abs/1812.08940)
+* Online Parametric Timed Pattern Matching with Automata-Based Skipping. Masaki Waga and Étienne André, NFM 2019: 371-389 [[arXiv version]](https://arxiv.org/abs/1903.07328)
