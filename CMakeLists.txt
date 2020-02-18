@@ -161,6 +161,7 @@ add_executable(unit_test
   monaa/tre.cc
   monaa/intermediate_tre.cc
   test/unit_test.cc
+  test/abstract_nfa_test.cc
   test/zone_automaton_test.cc
   test/ta2za_test.cc
   test/lazy_deque_test.cc

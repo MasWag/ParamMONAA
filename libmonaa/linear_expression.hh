@@ -12,9 +12,7 @@ private:
   Coefficient denominator;
   Parma_Polyhedra_Library::Linear_Expression expr;
 public:
-  LinearExpression(const Parma_Polyhedra_Library::Linear_Expression &expr) : expr(std::move(expr)) {
-    denominator = 1;
-  }
+  LinearExpression(const Parma_Polyhedra_Library::Linear_Expression &expr) : denominator(1), expr(std::move(expr)) {}
   template<class T>
   Parma_Polyhedra_Library::Constraint operator>(const T &d) const;
   template<class T>

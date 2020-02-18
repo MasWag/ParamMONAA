@@ -11,8 +11,10 @@ template<class TAState, class Zone>
 struct AbstractZAState : public AbstractNFAState<AbstractZAState<TAState, Zone>> {
   TAState *taState;
   Zone zone;
-  AbstractZAState (TAState *taState, Zone zone) : AbstractNFAState<AbstractZAState<TAState, Zone>>(taState->isMatch, {}), taState(taState), zone(std::move(zone)) {}
-  AbstractZAState (bool isMatch = false, std::array<std::vector<std::weak_ptr<AbstractZAState<TAState, Zone>>>, CHAR_MAX> next = {}) : AbstractNFAState<AbstractZAState<TAState, Zone>>(isMatch, next) {}
+  AbstractZAState (TAState *inputTaState, Zone zone) : AbstractNFAState<AbstractZAState<TAState, Zone>>(inputTaState->isMatch, {}), zone(std::move(zone)) {
+    this->taState = inputTaState;
+  }
+
   bool operator==(std::pair<TAState*, Zone> pair) {
     return pair.first == taState && pair.second == zone;
   }
@@ -29,24 +31,6 @@ struct NoEpsilonZAState {
   }
 };
 
-//! @brief returns the set of states that is reachable from a state in the state by unobservable transitions
-template<class TAState, class Zone>
-void epsilonClosure(std::unordered_set<std::shared_ptr<AbstractZAState<TAState, Zone>>> &closure) {
-  auto waiting = std::deque<std::shared_ptr<AbstractZAState<TAState, Zone>>>(closure.begin(), closure.end());
-  while (!waiting.empty()) {
-    for(auto wstate: waiting.front()->next[0]) {
-      auto state = wstate.lock();
-      if ( state && closure.find(state) == closure.end()) {
-        closure.insert(state);
-        waiting.push_back(state);
-      }
-    }
-    waiting.pop_front();
-  }
-}
-
-
-
 template<class TAState, class Zone>
 struct AbstractZoneAutomaton : public AbstractNFA<AbstractZAState<TAState, Zone>> {
   using State = AbstractZAState<TAState, Zone>;
@@ -54,7 +38,7 @@ struct AbstractZoneAutomaton : public AbstractNFA<AbstractZAState<TAState, Zone>
     @brief Propagate accepting states from the original timed automaton
     @note taInitSates must be sorted
   */
-  void updateInitAccepting(const std::vector<std::shared_ptr<TAState>> taInitialStates) {
+  void updateInitAccepting(const std::vector<std::shared_ptr<TAState>> &taInitialStates) {
     // update initial states
     this->initialStates.clear();
     for (std::shared_ptr<State> s: this->states) {

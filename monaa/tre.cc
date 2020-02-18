@@ -129,7 +129,8 @@ void removeUnreachableStates(TimedAutomaton &out) {
       }
     }
     std::sort(nextReachableStates.begin(), nextReachableStates.end());
-    std::unique(nextReachableStates.begin(), nextReachableStates.end());
+    auto last = std::unique(nextReachableStates.begin(), nextReachableStates.end());
+    nextReachableStates.erase(last, nextReachableStates.end());
     {
       std::vector<TAState*> c;
       std::set_difference(std::make_move_iterator(nextReachableStates.begin()), 

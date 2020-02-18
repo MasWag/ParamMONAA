@@ -12,6 +12,8 @@ struct AbstractNFAState {
   bool isMatch;
   // An epsilon transition is denoted by the null character (\0)
   std::array<std::vector<std::weak_ptr<Final>>, CHAR_MAX> next;
+  AbstractNFAState(bool isMatch = false) : isMatch(isMatch) {}
+
   AbstractNFAState(bool isMatch, const std::array<std::vector<std::weak_ptr<Final>>, CHAR_MAX> &next) : isMatch(isMatch), next(next) {}
 };
 
@@ -102,3 +104,21 @@ struct AbstractNFA : public Automaton<State> {
     return true;
   }
 };
+
+//! @brief returns the set of states that is reachable from a state in the state by unobservable transitions
+template<class NFAState>
+void epsilonClosure(std::unordered_set<std::shared_ptr<NFAState>> &closure) {
+  static_assert(std::is_base_of<AbstractNFAState<NFAState>, NFAState>::value, "State must be a child of AbstractNFAState");
+
+  auto waiting = std::deque<std::shared_ptr<NFAState>>(closure.begin(), closure.end());
+  while (!waiting.empty()) {
+    for(auto wstate: waiting.front()->next[0]) {
+      auto state = wstate.lock();
+      if ( state && closure.find(state) == closure.end()) {
+        closure.insert(state);
+        waiting.push_back(state);
+      }
+    }
+    waiting.pop_front();
+  }
+}
