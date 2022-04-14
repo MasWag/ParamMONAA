@@ -6,11 +6,40 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_
 
 configure_file(monaa/config.hh.in ${CMAKE_CURRENT_BINARY_DIR}/config.hh)
 
-set(CMAKE_CXX_FLAGS "-Wall -std=c++14 -march=native")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++14 -march=native")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -DDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE "-flto -O3 -DRELEASE")
 
-find_package(BISON REQUIRED)
+# On macOS, search Homebrew for keg-only versions of Bison and Flex. Xcode does
+# not provide new enough versions for us to use.
+if(CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin")
+    execute_process(
+        COMMAND brew --prefix bison
+        RESULT_VARIABLE BREW_BISON
+        OUTPUT_VARIABLE BREW_BISON_PREFIX
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    if(BREW_BISON EQUAL 0 AND EXISTS "${BREW_BISON_PREFIX}")
+      message(STATUS
+        "Found Bison keg installed by Homebrew at ${BREW_BISON_PREFIX}")
+      set(CMAKE_FIND_ROOT_PATH "${BREW_BISON_PREFIX};${CMAKE_FIND_ROOT_PATH}")
+    endif()
+
+    execute_process(
+        COMMAND brew --prefix flex
+        RESULT_VARIABLE BREW_FLEX
+        OUTPUT_VARIABLE BREW_FLEX_PREFIX
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    if(BREW_FLEX EQUAL 0 AND EXISTS "${BREW_FLEX_PREFIX}")
+      message(STATUS
+        "Found Flex keg installed by Homebrew at ${BREW_FLEX_PREFIX}")
+        set(CMAKE_FIND_ROOT_PATH "${BREW_FLEX_PREFIX};${CMAKE_FIND_ROOT_PATH}")
+    endif()
+endif()
+
+
+find_package(BISON 3.0 REQUIRED)
 find_package(FLEX REQUIRED)
 find_package(Boost REQUIRED COMPONENTS
   program_options unit_test_framework iostreams graph)
@@ -25,6 +54,8 @@ find_package_handle_standard_args(GMP DEFAULT_MSG GMP_INCLUDE_DIRS GMP_LIBRARY)
 include_directories(
   monaa/
   libmonaa/
+  ${BISON_INCLUDE_DIRS}
+  ${FLEX_INCLUDE_DIRS}
   ${PROJECT_BINARY_DIR}
   ${Boost_INCLUDE_DIRS}
   ${Eigen3_INCLUDE_DIRS})
