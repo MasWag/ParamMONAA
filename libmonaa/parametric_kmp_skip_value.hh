@@ -67,7 +67,7 @@ public:
                 feasibleParameters.add_disjunct(std::move(zone));
               }
               for (const auto &edges: state->next) {
-                for (const auto edge: edges) {
+                for (const auto &edge: edges) {
                   auto target = edge.lock();
                   if (target && visited.find(target) == visited.end()) {
                     // We have not visited the state
