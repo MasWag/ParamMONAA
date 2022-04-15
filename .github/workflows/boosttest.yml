@@ -15,8 +15,8 @@ jobs:
         submodules: true
     - name: default build
       run: |
-        mkdir build
-        cd build && cmake .. && make monaa unit_test tre2ta
+        mkdir -p build/tre build/constraint
+        cd build && cmake .. && make pmonaa unit_test tre2ta
 
   gcc_unit_test:
     runs-on: ubuntu-latest
@@ -33,7 +33,7 @@ jobs:
         export CXX=/usr/bin/g++
     - name: build and test
       run: |
-        mkdir -p gcc_build
+        mkdir -p gcc_build/tre gcc_build/constraint
         cd gcc_build && cmake .. && make unit_test && ./unit_test
 
   clang_unit_test:
@@ -51,7 +51,7 @@ jobs:
         export CXX=/usr/bin/clang++
     - name: build and test
       run: |
-        mkdir -p clang_build
+        mkdir -p clang_build/tre clang_build/constraint
         cd clang_build && cmake .. && make unit_test && ./unit_test
         
   ubuntu_bionic:
@@ -66,7 +66,7 @@ jobs:
       run: sudo apt-get install cmake bison libbison-dev flex libfl-dev libeigen3-dev libboost-all-dev libppl-dev -y
     - name: build and test
       run: |
-        mkdir -p build
+        mkdir -p build/tre build/constraint
         cd build && cmake .. && make unit_test && ./unit_test    
 
   ubuntu_focal:
@@ -81,7 +81,7 @@ jobs:
       run: sudo apt-get install cmake bison libbison-dev flex libfl-dev libeigen3-dev libboost-all-dev libppl-dev -y
     - name: build and test
       run: |
-        mkdir -p build
+        mkdir -p build/tre build/constraint
         cd build && cmake .. && make unit_test && ./unit_test    
 
   macOS_Catalina:
@@ -96,7 +96,7 @@ jobs:
       run: brew install eigen boost bison flex ppl
     - name: build and test
       run: |
-        mkdir -p build
+        mkdir -p build/tre build/constraint
         export PATH="/usr/local/opt/bison/bin:/usr/local/opt/flex/bin:$PATH"
         LDFLAGS="-L/usr/local/opt/bison/lib -L/usr/local/opt/flex/lib"
         export CPPFLAGS="-I/usr/local/opt/flex/include"
