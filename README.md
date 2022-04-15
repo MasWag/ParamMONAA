@@ -1,7 +1,7 @@
 Param MONAA --- A Tool for Parametric Timed Patten Matching with Automata-Based Acceleration
 ============================================================================================
 
-[![Boost.Test](https://github.com/MasWag/ParamMONAA/actions/workflows/boosttest.yml/badge.svg)](https://github.com/MasWag/ParamMONAA/actions/workflows/boosttest.yml)
+[![Boost.Test](https://github.com/MasWag/ParamMONAA/workflows/Boost.Test/badge.svg)](https://github.com/MasWag/ParamMONAA/actions/workflows/boosttest.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
 
 This is the source code repository for Param MONAA --- A Tool for Parametric Timed Patten Matching with Automata-Based Acceleration.
